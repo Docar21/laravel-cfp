@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('solicitud_articulos', function (Blueprint $table) {
+       /* Schema::table('solicitud_articulos', function (Blueprint $table) {
             $table->string('aprobado');
-        });
+        });*/
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('solicitud_articulos', function (Blueprint $table) {
+        /*Schema::table('solicitud_articulos', function (Blueprint $table) {
             $table->dropColumn('aprobado');
-        });
+        });*/
     }
 };
