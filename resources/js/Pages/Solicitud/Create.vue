@@ -10,6 +10,8 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { onMounted, ref, watch } from 'vue';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import Checkbox from '@/Components/Checkbox.vue';
+import Pagination from '@/Components/Pagination.vue';
+
 
 const page = usePage();
 
@@ -179,10 +181,10 @@ const closeModal = () => {
                                         <tr class="border-b dark:bg-gray-800 dark:border-gray-700"
                                             v-for="articulo in $page.props.articulos.data"
                                             :key="$page.props.articulos.data.id">
-                                            <th scope="col" class="py-3 px-6">
+                                            <th scope="col" class="">
                                                 {{ articulo.numero_articulo }}
                                             </th>
-                                            <th scope="col" class="py-3 px-6">
+                                            <th scope="col" class="">
                                                 {{ articulo.descripcion_articulo }}
                                             </th>
 
@@ -190,7 +192,7 @@ const closeModal = () => {
                                                 <PrimaryButton class="bg-slate-200"
                                                     v-if="form.cantidad && form.comentarios"
                                                     @click="AgregarALista(articulo.id, articulo.numero_articulo, articulo.descripcion_articulo, form.cantidad, form.comentarios)">
-                                                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24"
+                                                    <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24"
                                                         stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
@@ -202,6 +204,7 @@ const closeModal = () => {
                                         </tr>
                                     </tbody>
                                 </table>
+                                <Pagination class="mt-6" :links="$page.props.articulos.links" />
                             </form>
                         </div>
                     </div>

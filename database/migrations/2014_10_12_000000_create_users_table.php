@@ -65,9 +65,9 @@ return new class extends Migration
                 ->on('articulos')
                 ->onDelete('cascade');
             $table->primary(["id_solicitud","id_articulo"]);
-            $table->string('obs_gerencia');
-            $table->string('obs_compras');
-            $table->string('observaciones');
+            $table->string('obs_gerencia')->nullable();
+            $table->string('obs_compras')->nullable();
+            $table->string('observaciones')->nullable();
             $table->timestamps();
         });
     }

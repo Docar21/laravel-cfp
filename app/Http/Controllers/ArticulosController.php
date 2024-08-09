@@ -20,20 +20,19 @@ class ArticulosController extends Controller
      */
     public function index()
     {
-       // $articulos=Articulos::all();
-        
+       //$articulos=Articulos::orderBy('id', 'desc')->paginate(50);
+        //dd($articulos);
         return Inertia::render('Articulo/Index',[
-            'articulos'=>Articulos::all(),
+            //'articulos'=>Articulos::orderBy('id', 'desc')->paginate(30),
             'isAdmin'=>User::find(Auth::user()->id)->hasRole('Administrador'),
             'isCompras'=>User::find(Auth::user()->id)->hasRole('compras'),
             'isRt'=>User::find(Auth::user()->id)->hasRole('RT'),
-            
-           /* 'arti' => Articulos::query()
+            'articulos' => Articulos::query()
                 ->when(RR::input('search'),function($query, $search) {
-                    $query->where('id','like','%'.$search.'%');
-                })
-                ->withQueryString(),
-                'filters' => RR::only(['search']),*/
+                    $query->where('descripcion_articulo','like','%'.$search.'%')
+                        ->OrWhere('numero_articulo','like','%'.$search.'%');
+                })->paginate(30),
+                'filters' => RR::only(['search']),
         ]);
 
     }
@@ -92,9 +91,8 @@ class ArticulosController extends Controller
     }
 
     public function import_articulos(Request $request){
-        //dd($request->file('excel'));
+        dd($request);
         $file = $request->file('excel');
-       // dd($file);
         Excel::import(new ExcelImport, $file );
         return redirect()->route('articulo.index')->with('message',['type' => 'success', 'action' => 'success', 'text' => 'Tarea Realizada con éxito']);
 

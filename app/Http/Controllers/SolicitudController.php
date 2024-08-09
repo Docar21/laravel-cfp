@@ -46,11 +46,29 @@ class SolicitudController extends Controller
               'cantidad')
               ->get(),
               //////////
-              'solicitudes'=>DB::table('solicitudes')
+              /*'solicitudes' => Solicitudes::query()
+                ->when(RR::input('search'),function($query, $search) {
+                    $query->join('proyectos','solicitudes.id_proyecto','=','proyectos.id')
+                    ->join('users','solicitudes.id_user','=','users.id')
+                    ->select('solicitudes.id as solicitud_id','solicitudes.fecha_realizada','solicitudes.fecha_deseada','solicitudes.estado', 'proyectos.name AS proyecto', 'users.name AS usuario')
+                    ->where('proyectos','like','%'.$search.'%');
+                })->Paginate(30),
+                'filters' => RR::only(['search']),*/
+              /*'solicitudes'=>DB::table('solicitudes')
               ->join('proyectos','solicitudes.id_proyecto','=','proyectos.id')
               ->join('users','solicitudes.id_user','=','users.id')
               ->select('solicitudes.id as solicitud_id','solicitudes.fecha_realizada','solicitudes.fecha_deseada','solicitudes.estado', 'proyectos.name AS proyecto', 'users.name AS usuario')
-              ->get(),
+              ->Paginate(30)
+              ->withQueryString(),*/
+              //'filters' => RR::only(['search']),
+                'solicitudes'=>Solicitudes::query()->join('proyectos','solicitudes.id_proyecto','=','proyectos.id')->join('users','solicitudes.id_user','=','users.id')
+                ->select('solicitudes.id as solicitud_id','solicitudes.fecha_realizada','solicitudes.fecha_deseada','solicitudes.estado', 'proyectos.name AS proyecto', 'users.name AS usuario')
+                ->when(RR::input('search'),function($table, $search) {
+                    $table->where('estado','like','%'.$search.'%')->OrWhere('proyectos.name','like','%'.$search.'%');
+                })->Paginate(20)->withQueryString(),
+                'filters' => RR::only(['search']),
+
+
               /////////
               'solicitudesAprobadas'=>DB::table('solicitudes')
               ->join('proyectos','solicitudes.id_proyecto','=','proyectos.id')
@@ -73,7 +91,7 @@ class SolicitudController extends Controller
             'articulos' => Articulos::query()
                 ->when(RR::input('search'),function($query, $search) {
                     $query->where('descripcion_articulo','like','%'.$search.'%');
-                })->paginate(3)
+                })->paginate(10)
                 ->withQueryString(),
                 'filters' => RR::only(['search']),
                 'proyectos'=>Proyectos::all(),
@@ -137,6 +155,7 @@ class SolicitudController extends Controller
     }
 
     public function update(Request $request){
+        //dd($request);
         $id_solicitud=$request->input("id_solicitud");
         $observaciones=$request->input("observaciones_gerencia");
         $aprobado=$request->input("aprobados");
@@ -162,7 +181,8 @@ class SolicitudController extends Controller
                 }
             }
             DB::commit();
-            Mail::to('docar.decz@gmail.com')->send(new Notification);
+            //enviar_mail();
+            //Mail::to('docar.decz@gmail.com')->send(new Notification);
             return redirect()->route('solicitud.index')->with('message',['type' => 'success', 'action' => 'success', 'text' => 'Tarea Realizada con éxito']);
         } catch (\Throwable $th) {
             DB::rollBack();

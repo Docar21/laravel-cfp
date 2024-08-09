@@ -7,11 +7,13 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DangerButton from '@/Components/PrimaryButton.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import { onMounted, ref, render, watch } from 'vue';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { onMounted, ref, render, watch  } from 'vue';
+import { Head, router, useForm, usePage, Link } from '@inertiajs/vue3';
 import Checkbox from '@/Components/Checkbox.vue';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
+import Pagination from '@/Components/Pagination.vue';
+
 
 DataTable.use(DataTablesCore);
 
@@ -26,6 +28,17 @@ const form = useForm({
     aprobados: [],
     isAdmin:page.props.isAdmin,
     isCompras:page.props.isCompras,
+});
+let search = ref('');
+watch(search, (value) => {
+    router.get(
+        "solicitud",
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
 });
 
 const Nuevo = () => {
@@ -51,6 +64,12 @@ const verDetalles = (id) => {
     mostrarModalDetalles.value = true;
 }
 const aprobarDetalles = (id) => {
+    page.props.solicitudDetalle.forEach(solicitud_Detalle => {
+        if (solicitud_Detalle.solicitud_id==id) {
+            solicitudObjectDetalle.value.push(solicitud_Detalle);
+        }
+    });
+    //console.log(solicitudObjectDetalle);
     form.id_solicitud = id;
     mostrarModalAprobar.value = true;
 }
@@ -183,12 +202,15 @@ onMounted(() => {
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Solicitudes</h2>
         </template>
         <div class="py-12">
-            <!--pre>{{ $page.props }}</pre-->
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 dark:text-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="">
                         <div class="grid grid-flow-col grid-cols-3 p-5 justify-items-center ">
-                            <div></div><!--¡NO ELIMINAR!-->
+                           
+                            <div class="">
+                                <input type="text" v-model="search" placeholder="Search..."
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-60 p-2.5" />
+                            </div>
                             <div class="text-2xl">
                                 <strong>Solicitudes</strong>
                             </div>
@@ -204,12 +226,12 @@ onMounted(() => {
                             </PrimaryButton>
                         </div>
                         <div class="text-gray-900 dark:text-gray-100">
-                            <div class=" -mt-10 flex flex-col overflow-x-auto">
+                            <div class=" -mt-10 flex flex-col ">
                                 <div class="sm:-mx-6 lg:-mx-8">
                                     <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                                        <div class="overflow-x-auto p-5">
+                                        <div class=" p-5">
                                             <div class="bg-gray-50 overflow-hidden sm:py-12">
-                                                <DataTable id="example" class="example display w-full border border-gray-400"
+                                                <!--DataTable id="example" class="example display w-full border border-gray-400"
                                                     :data="$page.props.solicitudes" :columns="columnas"
                                                     :options="{ stateSave: true, responsive: true, autoWidth: false ,dom:'Bftip' }">
                                                     <thead>
@@ -224,8 +246,58 @@ onMounted(() => {
                                                             <th>Usuario</th>
                                                             <th>Acciones</th>
                                                         </tr>
-                                                    </thead>
-                                                </DataTable>
+                                                    </thead>{{ $page.props.solicitudes }}
+                                                </DataTable-->
+                                                <table
+                                                class="min-w-full text-start text-sm font-light text-surface dark:text-white">
+                                                <thead
+                                                    class="border-b border-neutral-200 font-bold text-xl text-gray-950 dark:border-white/10">
+                                                    <tr
+                                                        class="bg-slate-200 border-b dark:bg-gray-800 dark:border-gray-700">
+                                                        <th scope="col" class="py-3 px-6">Solcitud ID</th>
+                                                        <th scope="col" class="py-3 px-6">Fecha Realizada</th>
+                                                        <th scope="col" class="py-3 px-6">Fecha Deseada</th>
+                                                        <th scope="col" class="py-3 px-6">Estado</th>
+                                                        <th scope="col" class="py-3 px-6">Proyecto</th>
+                                                        <th scope="col" class="py-3 px-6">Usuario</th>
+                                                        <th scope="col" class="py-3 px-6">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="border-b dark:bg-gray-800 dark:border-gray-700"
+                                                        v-for="solicitud in $page.props.solicitudes.data"
+                                                        :key="$page.props.solicitudes.data.id">
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.solicitud_id }}                                                        </th>
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.fecha_realizada }}
+                                                        </th>
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.fecha_deseada }}
+                                                        </th>
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.estado }}
+                                                        </th>
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.proyecto }}
+                                                        </th>
+                                                        <th scope="col" class="">
+                                                            {{ solicitud.usuario }}
+                                                        </th>
+                                                        <th scope="col" class="">
+                                                            <button @click="verDetalles(solicitud.solicitud_id)"><svg class="h-6 w-6 text-blue-800 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg></button>
+                                                            <button @click="aprobarDetalles(solicitud.solicitud_id)"><svg class="h-6 w-6 text-blue-800 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                                                            <button v-if="$page.props.isAdmin" @click="aprobarSolicitud(solicitud.solicitud_id)"><svg class="h-6 w-6 text-blue-800 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
+                                                            <button v-if="$page.props.isAdmin" @click="negarSolicitud(solicitud.solicitud_id)"><svg class="h-6 w-6 text-blue-800 mr-3" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg></button>
+                                                            <button><a :href="'/solicitud-export/'+solicitud.solicitud_id"  target="_blank"><svg class="h-6 w-6 text-blue-500"  fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></a></button>
+
+                                                            
+                                                        </th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <Pagination class="mt-6" :links="$page.props.solicitudes.links" />
+
                                             </div>
                                         </div>
                                     </div>
@@ -304,21 +376,21 @@ onMounted(() => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="solicitud_detalle in $page.props.solicitudDetalle"
+                        <tr v-for="(solicitud_detalle,index) in solicitudObjectDetalle"
                             class="border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th v-if="solicitud_detalle.solicitud_id == form.id_solicitud" scope="col"
+                            <th scope="col"
                                 class="py-3 px-6">{{
                                     solicitud_detalle.descripcion }}</th>
-                            <th v-if="solicitud_detalle.solicitud_id == form.id_solicitud" scope="col"
+                            <th scope="col"
                                 class="py-3 px-6">{{
                                     solicitud_detalle.cantidad }}</th>
-                            <th v-if="solicitud_detalle.solicitud_id == form.id_solicitud" scope="col"
+                            <th scope="col"
                                 class="py-3 px-6">{{
                                     solicitud_detalle.observaciones }}</th>
-                            <th v-if="solicitud_detalle.solicitud_id == form.id_solicitud" scope="col"
+                            <th scope="col"
                                 class="py-3 px-6">
                                 <TextInput id="observaciones" type="text"
-                                    v-model="form.observaciones_gerencia[solicitud_detalle.articulo_id]" />
+                                    v-model="form.observaciones_gerencia[index]" />
                             </th>
                             <th v-if="!$page.props.isCompras && solicitud_detalle.solicitud_id == form.id_solicitud">
                                 <Checkbox v-model:checked="form.aprobados" :value="solicitud_detalle.articulo_id" />
